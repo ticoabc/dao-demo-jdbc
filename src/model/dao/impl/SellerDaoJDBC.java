@@ -25,7 +25,7 @@ public class SellerDaoJDBC implements SellerDao{
 		this.conn = conn;
 	}
 	
-	//Inserindo registros
+	//(CREAATE)Cria novo vendedor
 	@Override
 	public void insert(Seller obj) {
 		PreparedStatement st = null;
@@ -59,8 +59,36 @@ public class SellerDaoJDBC implements SellerDao{
 			//Exceção para o caso de nenhuma linha (registro) for inserido 
 			else {
 				throw new DbException("Unexpected erro! No rows affected!"); 
-			}
+			}			
+		}
+		//Exceção personalizada
+		catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.closeStatement(st);
+		}
+	}
+
+	//
+	@Override
+	public void update(Seller obj) {
+		
+		PreparedStatement st = null;
+		try {
+			st = conn.prepareStatement(
+					  "UPDATE seller "
+					+ "SET Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ? "
+					+ "WHERE Id = ?");// Retorna o Id do novo registro
 			
+			st.setString(1, obj.getName());
+			st.setString(2, obj.getEmail());
+			st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
+			st.setDouble(4, obj.getBaseSalary());
+			st.setInt(5, obj.getDepartment().getId());
+			st.setInt(6, obj.getId());
+			
+			st.executeUpdate();		
 		}
 		//Exceção personalizada
 		catch (SQLException e) {
@@ -72,14 +100,10 @@ public class SellerDaoJDBC implements SellerDao{
 	}
 
 	@Override
-	public void update(Seller obj) {		
-	}
-
-	@Override
 	public void delete(Integer id) {		
 	}
 
-	//Busca por Id
+	//(READ - UNICA)Busca por Id
 	@Override
 	public Seller findById(Integer id) {
 		PreparedStatement st = null;
@@ -128,6 +152,7 @@ public class SellerDaoJDBC implements SellerDao{
 		}
 	}
 	
+	//(CREATE) Cria novo vendedor
 	//Método Auxiliar                                              Propaga a Exceção
 	private Seller instantiateSeller(ResultSet rs, Department dep) throws SQLException {
 		Seller obj = new Seller();
@@ -140,6 +165,7 @@ public class SellerDaoJDBC implements SellerDao{
 		return obj;
 	}
 
+	//(CREATE) Cria novo Departamento
 	//Método Auxiliar                                      Propaga a Exceção 
 	private Department instantiateDepartment(ResultSet rs) throws SQLException {
 		Department dep = new Department();
@@ -148,7 +174,7 @@ public class SellerDaoJDBC implements SellerDao{
 		return dep;
 	}
 
-	//Busca todos registros
+	//(READ - GERAL)Busca todos registros
 	@Override
 	public List<Seller> findAll() {
 		PreparedStatement st = null;
@@ -196,6 +222,7 @@ public class SellerDaoJDBC implements SellerDao{
 		}
 	}
 
+	//(READ - UNICA)Busca por departamento
 	@Override
 	public List<Seller> findByDepartment(Department department) {
 		PreparedStatement st = null;
