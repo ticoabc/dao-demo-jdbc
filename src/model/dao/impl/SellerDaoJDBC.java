@@ -70,7 +70,7 @@ public class SellerDaoJDBC implements SellerDao{
 		}
 	}
 
-	//
+	//(UPDATE) Atualiza Vendedor
 	@Override
 	public void update(Seller obj) {
 		
@@ -99,8 +99,24 @@ public class SellerDaoJDBC implements SellerDao{
 		}
 	}
 
+	//(DELETE)
 	@Override
-	public void delete(Integer id) {		
+	public void delete(Integer id) {
+		PreparedStatement st = null;
+		try {
+			st = conn.prepareStatement(	"DELETE FROM seller WHERE Id = ?");
+			
+			st.setInt(1, id);
+			
+			st.executeUpdate();
+			
+		//Exceção personalizada
+		}catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.closeStatement(st);
+		}
 	}
 
 	//(READ - UNICA)Busca por Id
